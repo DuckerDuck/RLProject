@@ -8,7 +8,8 @@ import policies
 import policies.approximation
 import policies.random_policy
 
-from losses.REINFORCE import loss as loss_fn
+import losses
+import losses.REINFORCE
 
 from utils.sample_episode import sample_episode, sample_torch_episode
 from utils.rendering import render_torch_environment
@@ -30,6 +31,9 @@ def main(args):
     policy = get_mod_attr(policies, args.policy['cls'])(
         **args.policy['parameters']
     )
+
+    # Create losses
+    loss_fn = get_mod_attr(losses, args.loss)
 
     # Training and Evalutation
     optimizer = Adam(policy.parameters(), args.policy['learn_rate'])
@@ -69,10 +73,8 @@ if __name__ == '__main__':
     )
 
     parser.add_argument(
-        '--num_episodes',
-        type = int,
-        default = 100,
-        help = 'number of episodes to run the traininr for',
+        '--loss',
+        help = 'loss function to use',
     )
 
     parser.add_argument(
@@ -80,6 +82,13 @@ if __name__ == '__main__':
         action = DictArgs,
         nargs = '+',
         help = 'settings for environment',
+    )
+
+    parser.add_argument(
+        '--num_episodes',
+        type = int,
+        default = 100,
+        help = 'number of episodes to run the traininr for',
     )
 
     parser.add_argument(
