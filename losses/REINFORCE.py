@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch import optim
 
-def compute_reinforce_loss(policy, episode, discount_factor):
+def loss(policy, episode, discount_factor):
     """
     Computes reinforce loss for given episode.
     Args:

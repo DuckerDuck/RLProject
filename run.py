@@ -5,9 +5,10 @@ import torch
 from torch.optim import Adam
 
 import policies
-import policies.CartPole.nnpolicy
+import policies.approximation
+import policies.random_policy
 
-from trainer.CartPole.REINFORCE import compute_reinforce_loss
+from losses.REINFORCE import loss as loss_fn
 
 from utils.sample_episode import sample_episode, sample_torch_episode
 from utils.rendering import render_torch_environment
@@ -43,7 +44,7 @@ def main(args):
         episode = sample_torch_episode(env, policy)
 
         # Compute loss
-        loss = compute_reinforce_loss(policy, episode, args.policy['discount_factor'])
+        loss = loss_fn(policy, episode, args.policy['discount_factor'])
 
         # Update parameters
         loss.backward()
