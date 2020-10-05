@@ -20,15 +20,15 @@ def sample_episode(env, policy):
     actions = []
     rewards = []
     dones = []
-    
+
     state = env.reset()
     done = False
     while not done:
-    
+
         action = policy.sample_action(state)
         states.append(state)
         actions.append(action)
-        
+
         state, r, done, _ = env.step(action)
 
         dones.append(done)
@@ -54,21 +54,25 @@ def sample_torch_episode(env, policy):
     actions = []
     rewards = []
     dones = []
-    
-    # YOUR CODE HERE
+
     done = False
     state = env.reset()
-    action = policy.sample_action(torch.tensor(state).float())
-    states.append(state)
 
     while not done:
-        state, R, done, _ = env.step(action)
-        if not done:
-            states.append(state)
+        action = policy.sample_action(torch.Tensor(state).float())
+        new_state, reward, done, _ = env.step(action)
+
+        states.append(state)
         actions.append(action)
-        rewards.append(R)
+        rewards.append(reward)
         dones.append(done)
 
-        action = policy.sample_action(torch.tensor(state).float())
+        state = new_state
 
-    return torch.tensor(states), torch.tensor(actions).reshape(-1, 1), torch.tensor(rewards).reshape(-1, 1), torch.tensor(dones).reshape(-1, 1)
+    def make_tensor(l):
+        t = torch.squeeze(torch.Tensor(l))
+        if len(t.shape)<2:
+            return t[:, None]
+        return t
+
+    return make_tensor(states), make_tensor(actions), make_tensor(rewards), make_tensor(dones)

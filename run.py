@@ -1,33 +1,101 @@
-import gym
 import time
+
+import gym
 import torch
+from torch.optim import Adam
 
-from policies.random_policy import RandomPolicy
-from policies.CartPole.nnpolicy import NNPolicy
+import policies
+import policies.CartPole.nnpolicy
+
+from trainer.CartPole.REINFORCE import compute_reinforce_loss
+
 from utils.sample_episode import sample_episode, sample_torch_episode
-from trainer.CartPole.REINFORCE import run_episodes_policy_gradient
 from utils.rendering import render_torch_environment
-
-# parameters
-env_name = 'CartPole-v1'
-#n_possible_actions = 2
-#policy = RandomPolicy(n_possible_actions)
-#n_samples = 10
+from utils.settings import SettingsParser, DictArgs, get_mod_attr
 
 # REINFORCE TRAINER
-num_hidden = 128
-num_episodes = 5000
-discount_factor = 0.99
-learn_rate = 0.001
-policy = NNPolicy(num_hidden)
+# num_hidden = 128
+# num_episodes = 5000
+# discount_factor = 0.99
+# learn_rate = 0.001
+# policy = NNPolicy(num_hidden)
 
+def main(args):
 
+    # Create env
+    env = gym.envs.make(**args.env)
 
-env = gym.envs.make(env_name)
-env.max_episode_steps=3000,
+    # Create agent
+    policy = get_mod_attr(policies, args.policy['cls'])(
+        **args.policy['parameters']
+    )
 
+    # Training and Evalutation
+    optimizer = Adam(policy.parameters(), args.policy['learn_rate'])
 
-episode_duration_policy_gradients = run_episodes_policy_gradient(
-    policy, env, num_episodes, discount_factor, learn_rate, sample_torch_episode, render_torch_environment
-)
+    episode_durations = []
+    for i in range(args.num_episodes):
+
+        # Reset gradients
+        optimizer.zero_grad()
+
+        # Run episode with current policy
+        episode = sample_torch_episode(env, policy)
+
+        # Compute loss
+        loss = compute_reinforce_loss(policy, episode, args.policy['discount_factor'])
+
+        # Update parameters
+        loss.backward()
+        optimizer.step()
+
+        if i % 10 == 0:
+            print("{2} Episode {0} finished after {1} steps"
+                  .format(i, len(episode[0]), '\033[92m' if len(episode[0]) >= 195 else '\033[99m'))
+            if args.render and i%200 == 0:
+                render_torch_environment(env, policy)
+        episode_durations.append(len(episode[0]))
+
+if __name__ == '__main__':
+
+    parser = SettingsParser()
+
+    parser.add_argument(
+        '--policy',
+        action = DictArgs,
+        nargs = '+',
+        help = 'settings for policy',
+    )
+
+    parser.add_argument(
+        '--num_episodes',
+        type = int,
+        default = 100,
+        help = 'number of episodes to run the traininr for',
+    )
+
+    parser.add_argument(
+        '--env',
+        action = DictArgs,
+        nargs = '+',
+        help = 'settings for environment',
+    )
+
+    parser.add_argument(
+        '--render',
+        default = False,
+        action = 'store_true',
+        help = "If this fleg is given, rendering in evaluation is performed",
+    )
+
+    parser.add_argument(
+        '--device',
+        default = 'cuda:0' if torch.cuda.is_available() else 'cpu',
+        help = 'device (cuda or cpu) in which to run model',
+    )
+
+    args = parser.parse_args()
+    args.device = torch.device(args.device)
+
+    main(args)
 

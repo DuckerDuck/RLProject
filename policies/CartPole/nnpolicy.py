@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 class NNPolicy(nn.Module):
-    
+
     def __init__(self, num_hidden=128):
         nn.Module.__init__(self)
         self.l1 = nn.Linear(4, num_hidden)
@@ -12,10 +12,10 @@ class NNPolicy(nn.Module):
     def forward(self, x):
         """
         Performs a forward pass through the network.
-        
+
         Args:
             x: input tensor (first dimension is a batch dimension)
-            
+
         Return:
             Probabilities of performing all actions in given input states x. Shape: batch_size x action_space_size
         """
@@ -24,8 +24,7 @@ class NNPolicy(nn.Module):
         x = F.relu(x)
         x = self.l2(x)
 
-        x = F.softmax(x)
-        return x
+        return F.softmax(x, dim=-1)
 
 
     def get_probs(self, obs, actions):
@@ -43,10 +42,10 @@ class NNPolicy(nn.Module):
         # YOUR CODE HERE
 
         probs = self.forward(obs.float())
-        action_probs = probs.gather(1, actions)
+        action_probs = probs.gather(1, actions.long())
 
         return action_probs
-    
+
     def sample_action(self, obs):
         """
         This method takes a state as input and returns an action sampled from this policy.  
