@@ -11,9 +11,15 @@ class Agent:
 
     @abstractmethod
     def sample_action(self, obs):
-        '''
-        Returns a selected action given an observation
-        '''
+        """
+        This method takes a state as input and returns an action sampled from this policy.  
+
+        Args:
+            obs: state as a tensor. Shape: 1 x obs_dim or obs_dim
+
+        Returns:
+            An action (int).
+        """
         pass
 
 class ApproximatingAgent(Agent, nn.Module):

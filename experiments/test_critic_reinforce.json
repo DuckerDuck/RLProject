@@ -2,7 +2,7 @@
   "save_to": null,
   "load_from": null,
   "policy": {
-    "cls": "approximation.actor.BasicActor",
+    "cls": "approximation.actor.DifferentiableActor",
     "parameters": {
       "neurons": [128],
       "n_features" : 4,
