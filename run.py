@@ -12,6 +12,7 @@ import policies.random_policy
 
 import losses
 import losses.REINFORCE
+import losses.critics
 import losses.noloss
 
 from utils.sample_episode import sample_episode, sample_torch_episode

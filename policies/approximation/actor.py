@@ -49,13 +49,21 @@ class DifferentiableActor(Actor, ApproximatingAgent):
 
 # Non Differentiable Policies
 
-class EGreedy(Actor):
+class NonDifferentiableActor(Actor):
 
-    def __init__(self, get_q, epsilon):
-        super().__init__()
+    def __init__(self, get_q=None):
+        self._get_q = get_q
+
+    def set_q(self, get_q):
+        self._get_q = get_q
+        return self
+
+class EGreedy(NonDifferentiableActor):
+
+    def __init__(self, epsilon, get_q=None):
+        super().__init__(get_q)
 
         self._epsilon = epsilon
-        self._get_q = get_q
 
     def get_probs(self, obs, actions): # Get values of each action for current observation
         return torch.squeeze(
@@ -68,21 +76,20 @@ class EGreedy(Actor):
     def sample_action(self, obs):
 
         with torch.no_grad():
-            action_vals = self._get_q(torch.Tensor(obs)).detach().numpy()
+            action_vals = self._get_q(torch.Tensor(obs))
 
         # with probablity epsilon
-        if random.random() >= self._epsilon:
+        if np.random.rand() >= self._epsilon:
             return torch.argmax(action_vals).item() # greedy action
 
         return torch.randint(0, len(action_vals), (1,)).item() # random action
 
-class Boltzman(Actor):
+class Boltzman(NonDifferentiableActor):
 
-    def __init__(self, get_q, epsilon):
-        super().__init__()
+    def __init__(self, epsilon, get_q=None):
+        super().__init__(get_q)
 
         self._epsilon = epsilon
-        self._get_q = get_q
 
     def _get_pdist(self, obs):
         return F.softmax(self._get_q(obs)/self._epsilon, dim=-1)
