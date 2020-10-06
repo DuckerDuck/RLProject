@@ -19,13 +19,6 @@ from utils.sample_episode import sample_episode, sample_torch_episode
 from utils.rendering import render_torch_environment
 from utils.settings import SettingsParser, DictArgs, get_mod_attr, build_cls
 
-# REINFORCE TRAINER
-# num_hidden = 128
-# num_episodes = 5000
-# discount_factor = 0.99
-# learn_rate = 0.001
-# policy = NNPolicy(num_hidden)
-
 def main(args):
 
     # Create env
