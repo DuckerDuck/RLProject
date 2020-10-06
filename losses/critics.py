@@ -84,7 +84,7 @@ def n_step_loss(n=2, batch_size=1):
     def loss(policy, episode, discount_factor):
 
         # Get number of time-steps (train once for each time-step)
-        n_steps = len(episode[0])
+        n_steps = episode[-1].shape[0]
 
         tot_loss = 0
         for _ in range(n_steps):
