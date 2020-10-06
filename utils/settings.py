@@ -42,7 +42,7 @@ class SettingsParser(ArgumentParser):
             '--load_from',
             type = lambda x : x if x.endswith('.json') else x+'.json',
             default = None,
-            help = 'file in which to save settings'
+            help = 'file from which to load settings'
         )
 
     def parse_args(self, *args, **kwargs):

@@ -88,14 +88,14 @@ if __name__ == '__main__':
         '--num_episodes',
         type = int,
         default = 100,
-        help = 'number of episodes to run the traininr for',
+        help = 'number of episodes to run the training for',
     )
 
     parser.add_argument(
         '--render',
         default = False,
         action = 'store_true',
-        help = "If this fleg is given, rendering in evaluation is performed",
+        help = "If this flag is given, rendering in evaluation is performed",
     )
 
     parser.add_argument(
