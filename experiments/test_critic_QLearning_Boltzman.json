@@ -18,7 +18,7 @@
     "discount_factor": 0.99
   },
   "loss": {
-    "cls": "critics.n_step_loss",
+    "cls": "critics.q_learning_loss",
     "parameters": {
       "n": 3,
       "batch_size": 1

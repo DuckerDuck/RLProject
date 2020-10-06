@@ -26,7 +26,7 @@ def compute_q_vals(Q, states, actions, n, batch_size):
         actions.reshape(batch_size, n, -1)[:, 0, :].long(), # Get only action performed in initial state
     )
 
-def compute_targets(Q, rewards, states, dones, discount_factor, n, batch_size):
+def compute_targets(Q, rewards, states, dones, discount_factor, approx_next_val, n, batch_size):
     """
     This method returns targets (values towards which Q-values should move).
 
@@ -49,7 +49,7 @@ def compute_targets(Q, rewards, states, dones, discount_factor, n, batch_size):
     )
 
     # Get values for each next state according to off-policy Q-Learning rule (max per next state)
-    next_vals = torch.max(next_q_vals, dim=1)[0][:, None] * mask
+    next_vals = approx_next_val(next_q_vals) * mask
 
     # Compute MC estimate of return up to last state
     g_partial = (
@@ -79,25 +79,36 @@ def _sample_transitions(states, actions, rewards, dones, n=2, batch_size=1):
     # Return subselected
     return torch.index_select(states, 0, i), torch.index_select(actions, 0, i), torch.index_select(rewards, 0, i), torch.index_select(dones, 0, i)
 
-def n_step_loss(n=2, batch_size=1):
+# Bootrapping approximators
 
-    def loss(policy, episode, discount_factor):
+def generate_n_step_bootstrapping(approx_next_val):
 
-        # Get number of time-steps (train once for each time-step)
-        n_steps = episode[-1].shape[0]
+    def n_step_loss(n=2, batch_size=1):
 
-        tot_loss = 0
-        for _ in range(n_steps):
+        def loss(policy, episode, discount_factor):
 
-            # Sample n-steps transitions
-            states, actions, rewards, dones = _sample_transitions(*episode, n=n, batch_size=batch_size)
+            # Get number of time-steps (train once for each time-step)
+            n_steps = episode[-1].shape[0]
 
-            # Get error between prediction and target bootstrapping
-            tot_loss = tot_loss + F.smooth_l1_loss(
-                compute_q_vals(policy, states, actions, n, batch_size),
-                compute_targets(policy, rewards, states, dones, discount_factor, n, batch_size),
-            )
+            tot_loss = 0
+            for _ in range(n_steps):
 
-        return tot_loss
+                # Sample n-steps transitions
+                states, actions, rewards, dones = _sample_transitions(*episode, n=n, batch_size=batch_size)
 
-    return loss
+                # Get error between prediction and target bootstrapping
+                tot_loss = tot_loss + F.smooth_l1_loss(
+                    compute_q_vals(policy, states, actions, n, batch_size),
+                    compute_targets(policy, rewards, states, dones, discount_factor, approx_next_val, n, batch_size),
+                )
+
+            return tot_loss
+
+        return loss
+
+    return n_step_loss
+
+@generate_n_step_bootstrapping
+def q_learning_loss(next_q_vals):
+    return torch.max(next_q_vals, dim=1)[0][:, None]
+
