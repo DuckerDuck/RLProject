@@ -11,6 +11,7 @@ import policies.random_policy
 
 import losses
 import losses.REINFORCE
+import losses.noloss
 
 from utils.sample_episode import sample_episode, sample_torch_episode
 from utils.rendering import render_torch_environment
@@ -37,13 +38,14 @@ def main(args):
     loss_fn = get_mod_attr(losses, args.loss)
 
     # Training and Evalutation
-    optimizer = Adam(policy.parameters(), args.policy['learn_rate'])
+    optimizer = Adam(policy.parameters(), args.policy['learn_rate']) if next(policy.parameters(), None) is not None else None
 
     episode_durations = []
     for i in range(args.num_episodes):
 
         # Reset gradients
-        optimizer.zero_grad()
+        if optimizer is not None:
+            optimizer.zero_grad()
 
         # Run episode with current policy
         episode = sample_torch_episode(env, policy)
@@ -52,8 +54,9 @@ def main(args):
         loss = loss_fn(policy, episode, args.policy['discount_factor'])
 
         # Update parameters
-        loss.backward()
-        optimizer.step()
+        if optimizer is not None:
+            loss.backward()
+            optimizer.step()
 
         if i % 10 == 0:
             print("{2} Episode {0} finished after {1} steps"
