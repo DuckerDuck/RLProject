@@ -2,30 +2,16 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-class NNPolicy(nn.Module):
+from policies.agent import ApproximatingAgent
 
-    def __init__(self, num_hidden=128):
-        nn.Module.__init__(self)
-        self.l1 = nn.Linear(4, num_hidden)
-        self.l2 = nn.Linear(num_hidden, 2)
+class NNPolicy(ApproximatingAgent):
 
-    def forward(self, x):
-        """
-        Performs a forward pass through the network.
-
-        Args:
-            x: input tensor (first dimension is a batch dimension)
-
-        Return:
-            Probabilities of performing all actions in given input states x. Shape: batch_size x action_space_size
-        """
-        # YOUR CODE HERE
-        x = self.l1(x)
-        x = F.relu(x)
-        x = self.l2(x)
-
-        return F.softmax(x, dim=-1)
-
+    def __init__(self, *args, **kwargs):
+        super().__init__(
+            *args,
+            out_activation = 'Softmax',
+            **kwargs,
+        )
 
     def get_probs(self, obs, actions):
         """
@@ -39,12 +25,8 @@ class NNPolicy(nn.Module):
         Returns:
             A torch tensor filled with probabilities. Shape: batch_size x 1.
         """
-        # YOUR CODE HERE
 
-        probs = self.forward(obs.float())
-        action_probs = probs.gather(1, actions.long())
-
-        return action_probs
+        return self(obs.float()).gather(1, actions.long())
 
     def sample_action(self, obs):
         """
@@ -56,8 +38,6 @@ class NNPolicy(nn.Module):
         Returns:
             An action (int).
         """
-        # YOUR CODE HERE
+
         with torch.no_grad():
-            x = self.forward(obs)
-            action = torch.multinomial(x, 1).item()
-        return action
+            return torch.multinomial(self(obs), 1).item()
