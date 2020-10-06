@@ -15,7 +15,7 @@ import losses.noloss
 
 from utils.sample_episode import sample_episode, sample_torch_episode
 from utils.rendering import render_torch_environment
-from utils.settings import SettingsParser, DictArgs, get_mod_attr
+from utils.settings import SettingsParser, DictArgs, get_mod_attr, build_cls
 
 # REINFORCE TRAINER
 # num_hidden = 128
@@ -30,9 +30,7 @@ def main(args):
     env = gym.envs.make(**args.env)
 
     # Create agent
-    policy = get_mod_attr(policies, args.policy['cls'])(
-        **args.policy['parameters']
-    )
+    policy = build_cls(policies, **args.policy)
 
     # Create losses
     loss_fn = get_mod_attr(losses, args.loss)

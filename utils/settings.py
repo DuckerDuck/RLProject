@@ -66,3 +66,6 @@ def get_mod_attr(mod, names):
     for name in names.split('.'):
         mod = getattr(mod, name)
     return mod
+
+def build_cls(module, cls, parameters, **kwargs):
+    return get_mod_attr(module, cls)(**parameters)
