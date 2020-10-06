@@ -6,6 +6,7 @@ from torch.optim import Adam
 
 import policies
 import policies.approximation
+import policies.approximation.actor
 import policies.random_policy
 
 import losses
