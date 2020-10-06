@@ -98,8 +98,8 @@ def generate_n_step_bootstrapping(approx_next_val):
 
                 # Get error between prediction and target bootstrapping
                 tot_loss = tot_loss + F.smooth_l1_loss(
-                    compute_q_vals(policy, states, actions, n, batch_size),
-                    compute_targets(policy, rewards, states, dones, discount_factor, approx_next_val, n, batch_size),
+                    compute_q_vals(lambda x : policy.Q(x), states, actions, n, batch_size),
+                    compute_targets(lambda x : policy.Q(x), rewards, states, dones, discount_factor, approx_next_val, n, batch_size),
                 )
 
             return tot_loss

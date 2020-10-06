@@ -36,3 +36,6 @@ class QCritic(Critic):
             **kwargs,
         )
 
+    def Q(self, obs):
+        return self(obs)
+
