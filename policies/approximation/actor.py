@@ -1,10 +1,30 @@
+from abc import ABC, abstractmethod
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
 from policies.agent import ApproximatingAgent
 
-class NNPolicy(ApproximatingAgent):
+class Actor(ABC, ApproximatingAgent):
+
+    @abstractmethod
+    def get_probs(self, obs, actions):
+        """
+        This function takes a tensor of states and a tensor of actions and returns a tensor that contains 
+        a probability of perfoming corresponding action in all states (one for every state action pair). 
+
+        Args:
+            obs: a tensor of states. Shape: batch_size x obs_dim
+            actions: a tensor of actions. Shape: batch_size x 1
+
+        Returns:
+            A torch tensor filled with probabilities. Shape: batch_size x 1.
+        """
+        pass
+
+
+class BasicActor(Actor):
 
     def __init__(self, *args, **kwargs):
         super().__init__(
