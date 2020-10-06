@@ -7,6 +7,7 @@ from torch.optim import Adam
 import policies
 import policies.approximation
 import policies.approximation.actor
+import policies.approximation.critic
 import policies.random_policy
 
 import losses
@@ -33,7 +34,7 @@ def main(args):
     policy = build_cls(policies, **args.policy)
 
     # Create losses
-    loss_fn = get_mod_attr(losses, args.loss)
+    loss_fn = build_cls(losses, **args.loss)
 
     # Training and Evalutation
     optimizer = Adam(policy.parameters(), args.policy['learn_rate']) if next(policy.parameters(), None) is not None else None
