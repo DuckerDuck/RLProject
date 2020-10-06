@@ -40,11 +40,14 @@ class DifferentiableActor(Actor, ApproximatingAgent):
         )
 
     def get_probs(self, obs, actions):
-        return self(obs.float()).gather(1, actions.long())
+        return self.get_actor_probs(obs.float()).gather(1, actions.long())
 
     def sample_action(self, obs):
         with torch.no_grad():
-            return torch.multinomial(self(obs), 1).item()
+            return torch.multinomial(self.get_actor_probs(obs), 1).item()
+
+    def get_actor_probs(self, obs):
+        return self(obs)
 
 
 # Non Differentiable Policies
