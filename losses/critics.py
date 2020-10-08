@@ -22,7 +22,7 @@ def compute_q_vals(Q, states, actions, n, batch_size):
         Q(
             states.reshape(batch_size, n, -1)[:, 0, :] # Get only initial states of sequences
         ),
-        1,
+        -1,
         actions.reshape(batch_size, n, -1)[:, 0, :].long(), # Get only action performed in initial state
     )
 
@@ -53,12 +53,12 @@ def compute_targets(Q, rewards, states, dones, discount_factor, approx_next_val,
 
     # Compute MC estimate of return up to last state
     g_partial = (
-        rewards.reshape(batch_size, n, -1) * # divide rewards into sequences of n consecutive transitions
-        torch.pow(discount_factor, torch.arange(n))[None, :, None]
+        rewards.reshape(batch_size, n, -1)[:, :-1, :] * # divide rewards into sequences of n consecutive transitions
+        torch.pow(discount_factor, torch.arange(n-1))[None, :, None]
     ).sum(1)
 
     # Return approximated targets
-    return g_partial  + (discount_factor**n)*next_vals
+    return g_partial  + (discount_factor**(n-1))*next_vals
 
 def _sample_transitions(states, actions, rewards, dones, n=2, batch_size=1):
     '''
@@ -77,7 +77,7 @@ def _sample_transitions(states, actions, rewards, dones, n=2, batch_size=1):
     i = torch.arange(n).repeat(batch_size) + torch.repeat_interleave(torch.randint(0, states.shape[0]-n+1, (batch_size,)), n)
 
     # Return subselected
-    return torch.index_select(states, 0, i), torch.index_select(actions, 0, i), torch.index_select(rewards, 0, i), torch.index_select(dones, 0, i)
+    return torch.index_select(states, 0, i).detach(), torch.index_select(actions, 0, i).detach(),torch.index_select(rewards, 0, i).detach(), torch.index_select(dones, 0, i).detach()
 
 # Bootrapping approximators
 
@@ -96,11 +96,15 @@ def generate_n_step_bootstrapping(approx_next_val):
                 # Sample n-steps transitions
                 states, actions, rewards, dones = _sample_transitions(*episode, n=n, batch_size=batch_size)
 
+                # Compute prediction of state-action values (for actions performed)
+                prediction = compute_q_vals(lambda x : policy.Q(x), states, actions, n, batch_size)
+
+                # Compute target values (better estimate of prediction)
+                with torch.no_grad():
+                    targets = compute_targets(lambda x : policy.Q(x), rewards, states, dones, discount_factor, approx_next_val, n, batch_size)
+
                 # Get error between prediction and target bootstrapping
-                tot_loss = tot_loss + F.smooth_l1_loss(
-                    compute_q_vals(lambda x : policy.Q(x), states, actions, n, batch_size),
-                    compute_targets(lambda x : policy.Q(x), rewards, states, dones, discount_factor, approx_next_val, n, batch_size),
-                )
+                tot_loss = tot_loss + F.smooth_l1_loss(prediction, targets)
 
             return tot_loss
 
@@ -110,5 +114,5 @@ def generate_n_step_bootstrapping(approx_next_val):
 
 @generate_n_step_bootstrapping
 def q_learning_loss(next_q_vals):
-    return torch.max(next_q_vals, dim=1)[0][:, None]
+    return torch.max(next_q_vals, dim=-1)[0]
 
