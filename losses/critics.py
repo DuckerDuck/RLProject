@@ -54,7 +54,7 @@ def compute_targets(Q, rewards, states, dones, discount_factor, approx_next_val,
     # Compute MC estimate of return up to last state
     g_partial = (
         rewards.reshape(batch_size, n, -1) * # divide rewards into sequences of n consecutive transitions
-        torch.pow(discount_factor, torch.arange(n))
+        torch.pow(discount_factor, torch.arange(n))[None, :, None]
     ).sum(1)
 
     # Return approximated targets
