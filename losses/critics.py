@@ -26,6 +26,36 @@ def compute_q_vals(Q, states, actions, n, batch_size):
         actions.reshape(batch_size, n, -1)[:, 0, :].long(), # Get only action performed in initial state
     )
 
+def comput_v_vals(V, states, n, batch_size):
+    """
+    This method returns V values for a given state.
+
+    Args:
+        V: V-net
+        states: a tensor of states. Shape: batch_size x obs_dim
+
+    Returns:
+        A torch tensor filled with V values. Shape: batch_size x 1.
+    """
+    return V(states.reshape(batch_size, n, -1)[:, 0, :].long())
+
+def compute_v_targets(V, rewards, states, dones, discount_factor, approx_next_val, n, batch_size):
+
+    next_v_vals = V(
+        states.reshape(batch_size, n, -1)[:, -1, :]
+    )
+
+    # Compute MC estimate of return up to last state
+    v_partial = (
+        rewards.reshape(batch_size, n, -1)[:, :-1, :] * # divide rewards into sequences of n consecutive transitions
+        torch.pow(discount_factor, torch.arange(n-1))[None, :, None]
+    ).sum(1)
+
+    # Return approximated targets
+    return v_partial  + (discount_factor**(n-1))*next_vals
+
+
+
 def compute_targets(Q, rewards, states, dones, discount_factor, approx_next_val, n, batch_size):
     """
     This method returns targets (values towards which Q-values should move).
@@ -116,3 +146,6 @@ def generate_n_step_bootstrapping(approx_next_val):
 def q_learning_loss(next_q_vals):
     return torch.max(next_q_vals, dim=-1)[0]
 
+
+def test():
+    torch.tensor()
