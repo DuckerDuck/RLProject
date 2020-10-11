@@ -2,6 +2,7 @@ import time
 
 import gym
 import torch
+from datetime import datetime
 from torch.optim import Adam
 
 import policies
@@ -32,7 +33,8 @@ def main(args):
     loss_fn = build_cls(losses, **args.loss)
 
     # Create Result Writer
-    writer = ResultsManager.setup_writer('results/output.json', args)
+    timestamp = datetime.now().strftime('%m_%d_%H_%M_%S')
+    writer = ResultsManager.setup_writer(f'results/output_{timestamp}.json', args)
 
     # Training and Evalutation
     optimizer = Adam(policy.parameters(), args.policy['learn_rate']) if next(policy.parameters(), None) is not None else None
