@@ -28,7 +28,7 @@ def main(args):
     env = gym.envs.make(**args.env)
 
     # Create agent
-    policy = build_cls(policies, **args.policy)
+    policy = build_cls(policies, **args.policy).to(args.device)
 
     # Create losses
     loss_fns = [build_cls(losses, **loss_desc) for loss_desc in (args.loss if isinstance(args.loss, list) else [args.loss])]
@@ -48,7 +48,7 @@ def main(args):
             optimizer.zero_grad()
 
         # Run episode with current policy
-        episode = sample_torch_episode(env, policy)
+        episode = sample_torch_episode(env, policy, args.device)
 
         # Write to results
         writer.add_value('episode', i)
@@ -118,6 +118,6 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
     args.device = torch.device(args.device)
-
+    print('Running on device', args.device)
     main(args)
 

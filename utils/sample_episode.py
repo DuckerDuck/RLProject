@@ -36,7 +36,7 @@ def sample_episode(env, policy):
     return states, actions, rewards, dones
 
 
-def sample_torch_episode(env, policy):
+def sample_torch_episode(env, policy, device):
     """
     A sampling routine. Given environment and a policy samples one episode and returns states, actions, rewards
     and dones from environment's step function as tensors.
@@ -59,7 +59,8 @@ def sample_torch_episode(env, policy):
     state = env.reset()
 
     while not done:
-        action = policy.sample_action(torch.Tensor(state).float())
+        state = torch.Tensor(state).float().to(device)
+        action = policy.sample_action(state)
         new_state, reward, done, _ = env.step(action)
 
         states.append(state)
@@ -69,10 +70,17 @@ def sample_torch_episode(env, policy):
 
         state = new_state
 
-    def make_tensor(l):
-        t = torch.squeeze(torch.Tensor(l))
-        if len(t.shape)<2:
+    def make_tensor(l, from_tensor=False):
+        if from_tensor:
+            a = torch.cat(l).view(len(l), -1)
+            t = torch.squeeze(a)
+        else:
+            t = torch.squeeze(torch.Tensor(l))
+            t = t.to(device)
+            t = torch.squeeze(t)
+
+        if len(t.shape) < 2:
             return t[:, None]
         return t
 
-    return make_tensor(states), make_tensor(actions), make_tensor(rewards), make_tensor(dones)
+    return make_tensor(states, True), make_tensor(actions), make_tensor(rewards), make_tensor(dones)

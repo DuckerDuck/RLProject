@@ -59,4 +59,9 @@ class GAEAC(ActorCritic):
     def lambdapar(self):
         return self._lambdapar
 
+    def to(self, device):
+        self.actor.to(device)
+        self.critic.to(device)
+        return self
+
 makeGAEAC = makeFactory(GAEAC)
