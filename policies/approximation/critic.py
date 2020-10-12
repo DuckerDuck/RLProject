@@ -1,26 +1,26 @@
+from abc import ABC, abstractmethod
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
 from policies.agent import Net
 
-class Critic(Net):
+class Critic(ABC):
 
-    def __init__(self, policy, *args, **kwargs):
+    @abstractmethod
+    def V(self, obs):
+        pass
 
-        super().__init__(
-            *args,
-            out_activation = None,
-            n_outputs = 1,
-            **kwargs,
-        )
-
-class VCritic(Critic):
+class VCritic(Critic, Net):
 
     def __init__(self, *args, **kwargs):
 
-        super().__init__(
+        Net.__init__(
+            self,
             *args,
+            out_activation = None,
+            n_outputs = 1,
             **kwargs,
         )
 

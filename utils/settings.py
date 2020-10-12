@@ -53,7 +53,10 @@ class SettingsParser(ArgumentParser):
             with open(args.load_from, 'rt') as f:
                 args = Namespace()
                 for k, v in json.load(f).items():
-                    setattr(args, k, fit_type(v, [dict, int, float]))
+                    if isinstance(v, list):
+                        setattr(args, k, [fit_type(vi, [dict, int, float]) for vi in v])
+                    else:
+                        setattr(args, k, fit_type(v, [dict, int, float]))
 
         if args.save_to is not None:
             with open(args.save_to, 'wt') as f:

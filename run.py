@@ -9,6 +9,7 @@ import policies
 import policies.approximation
 import policies.approximation.actor
 import policies.approximation.critic
+import policies.actorcritic
 import policies.random_policy
 
 import losses
