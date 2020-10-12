@@ -12,7 +12,7 @@
     "discount_factor": 0.99
   },
   "loss": {
-    "cls" : "REINFORCE.loss",
+    "cls" : "actors.REINFORCE",
     "parameters" : {}
   },
   "env": {

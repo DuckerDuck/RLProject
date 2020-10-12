@@ -22,9 +22,9 @@ class Agent:
         """
         pass
 
-class ApproximatingAgent(Agent, nn.Module):
+class Net(nn.Module):
 
-    def __init__(self, neurons = 128, activations = 'ReLU', out_activation = None, n_actions=None, n_features=None):
+    def __init__(self, neurons = 128, activations = 'ReLU', out_activation = None, n_outputs=None, n_features=None):
 
         super().__init__()
 
@@ -37,10 +37,10 @@ class ApproximatingAgent(Agent, nn.Module):
 
         neurons = list(neurons)
 
-        # Append input and output sizes if specified via the use of n_actions and n_features (state size)
+        # Append input and output sizes if specified via the use of n_outputs and n_features (state size)
 
-        if n_actions is not None and isinstance(n_actions, int):
-            neurons = neurons + [n_actions]
+        if n_outputs is not None and isinstance(n_outputs, int):
+            neurons = neurons + [n_outputs]
 
         if n_features is not None and isinstance(n_features, int):
             neurons = [n_features] + neurons
@@ -82,5 +82,12 @@ class ApproximatingAgent(Agent, nn.Module):
 
     def forward(self, obs):
         return self._net(obs)
+
+
+
+class ApproximatingAgent(Agent, Net):
+
+    def __init__(self, neurons = 128, activations = 'ReLU', out_activation = None, n_actions=None, n_features=None):
+        Net.__init__(self, neurons, activations, out_activation, n_actions, n_features)
 
 

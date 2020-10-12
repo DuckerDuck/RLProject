@@ -2,40 +2,31 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-import policies.approximation.actor
+from policies.agent import Net
 
-from policies.agent import ApproximatingAgent
-from utils.settings import build_cls
-
-class Critic(ApproximatingAgent):
+class Critic(Net):
 
     def __init__(self, policy, *args, **kwargs):
 
         super().__init__(
             *args,
             out_activation = None,
+            n_outputs = 1,
             **kwargs,
         )
 
-        self._policy = policy
-
     def sample_action(self, obs):
-        return self.policy.sample_action(obs)
+        return None
 
-    @property
-    def policy(self):
-        return self._policy
-
-class QCritic(Critic):
+class VCritic(Critic):
 
     def __init__(self, policy, *args, **kwargs):
 
         super().__init__(
-            build_cls(policies.approximation.actor, **policy).set_q(lambda x : self(x)),
             *args,
             **kwargs,
         )
 
-    def Q(self, obs):
+    def V(self, obs):
         return self(obs)
 

@@ -11,7 +11,7 @@ import policies.approximation.critic
 import policies.random_policy
 
 import losses
-import losses.REINFORCE
+import losses.actors
 import losses.critics
 import losses.noloss
 
