@@ -57,3 +57,31 @@ class REINFORCE:
 
         self._G = self._rewards[self._t] + self._gamma * self._G
         return self._G
+
+@makePolicyLoss
+class GAE:
+    def __init__(self, policy, episode, discount_factor):
+
+        states, _, rewards, dones = episodes
+
+        self._rewards = rewards
+        self._states = states
+        self._dones = dones
+
+        self._gamma = discount_factor
+        self._lambda = policy.lambdapar # ? improve this perhaps
+        self._V = policy.critic.V
+
+        self._t = len(rewards)
+        self._A = 0
+
+    def __next__(self):
+
+        self._t -= 1
+
+        if self._t < 0:
+            return 0
+
+        delta_t = self._rewards[t] + self._gamma*V(self._states[t+1] if not self._dones[t] else 0) - V(self._states[t])
+        self._A = delta_t + self._gamma*self._lambda*self._A
+        return self._A

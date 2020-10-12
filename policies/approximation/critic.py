@@ -26,4 +26,3 @@ class VCritic(Critic):
 
     def V(self, obs):
         return self(obs)
-
