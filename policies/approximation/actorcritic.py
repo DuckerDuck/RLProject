@@ -10,7 +10,9 @@ from policies.agent import Agent
 
 class ActorCritic(ABC, Agent):
 
-    def __init__(self, actor, critic):
+    def __init__(self, actor, critic, discount_factor):
+
+        Agent.__init__(self, discount_factor)
 
         self._actor = actor
         self._critic = critic
@@ -29,8 +31,8 @@ class ActorCritic(ABC, Agent):
 
 class GAEAC(ActorCritic):
 
-    def __init__(self, actor, critic, lambdapar):
-        super().__init__(actor, critic)
+    def __init__(self, actor, critic, discount_factor, lambdapar):
+        super().__init__(actor, critic, discount_factor)
         self._lambdapar = lambdapar
 
     @property

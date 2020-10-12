@@ -9,10 +9,17 @@ import inspect
 
 class Agent:
 
+    def __init__(self, discount_factor):
+        self._discount_factor = discount_factor
+
+    @property
+    def discount_factor(self):
+        return self._discount_factor
+
     @abstractmethod
     def sample_action(self, obs):
         """
-        This method takes a state as input and returns an action sampled from this policy.  
+        This method takes a state as input and returns an action sampled from this policy.
 
         Args:
             obs: state as a tensor. Shape: 1 x obs_dim or obs_dim
@@ -87,7 +94,8 @@ class Net(nn.Module):
 
 class ApproximatingAgent(Agent, Net):
 
-    def __init__(self, neurons = 128, activations = 'ReLU', out_activation = None, n_actions=None, n_features=None):
+    def __init__(self, neurons = 128, activations = 'ReLU', out_activation = None, n_actions=None, n_features=None, discount_factor=1):
+        Agent.__init__(self, discount_factor)
         Net.__init__(self, neurons, activations, out_activation, n_actions, n_features)
 
 

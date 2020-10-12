@@ -6,7 +6,7 @@ from torch import optim
 def makePolicyLoss(Psi):
 
     def loss():
-        def loss(policy, episode, discount_factor):
+        def loss(policy, episode):
             """
             Computes reinforce loss for given episode.
             Args:
@@ -22,7 +22,7 @@ def makePolicyLoss(Psi):
 
             # −∑𝑡log𝜋𝜃(𝑎𝑡|𝑠𝑡)𝐺𝑡
             states, actions, _, _ = episode
-            psi = Psi(policy=policy, episode=episode, discount_factor=discount_factor)
+            psi = Psi(policy=policy, episode=episode)
 
             log_probs = torch.log(policy.get_probs(states, actions))
             loss = 0
@@ -38,12 +38,12 @@ def makePolicyLoss(Psi):
 
 @makePolicyLoss
 class REINFORCE:
-    def __init__(self, policy, episode, discount_factor):
+    def __init__(self, policy, episode):
 
         rewards = episode[2]
 
         self._rewards = rewards
-        self._gamma = discount_factor
+        self._gamma = policy.discount_factor
 
         self._t = len(rewards)
         self._G = 0
@@ -60,7 +60,7 @@ class REINFORCE:
 
 @makePolicyLoss
 class GAE:
-    def __init__(self, policy, episode, discount_factor):
+    def __init__(self, policy, episode):
 
         states, _, rewards, dones = episodes
 
@@ -68,7 +68,7 @@ class GAE:
         self._states = states
         self._dones = dones
 
-        self._gamma = discount_factor
+        self._gamma = policy.discount_factor
         self._lambda = policy.lambdapar # ? improve this perhaps
         self._V = policy.critic.V
 

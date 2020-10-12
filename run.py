@@ -44,7 +44,7 @@ def main(args):
         episode = sample_torch_episode(env, policy)
 
         # Compute loss
-        loss = loss_fn(policy, episode, args.policy['discount_factor'])
+        loss = loss_fn(policy, episode)
 
         # Update parameters
         if optimizer is not None:
