@@ -2,6 +2,7 @@ import time
 
 import gym
 import torch
+from datetime import datetime
 from torch.optim import Adam
 
 import policies
@@ -18,6 +19,7 @@ import losses.noloss
 from utils.sample_episode import sample_episode, sample_torch_episode
 from utils.rendering import render_torch_environment
 from utils.settings import SettingsParser, DictArgs, get_mod_attr, build_cls
+from utils.evaluation import ResultsManager
 
 def main(args):
 
@@ -29,6 +31,10 @@ def main(args):
 
     # Create losses
     loss_fn = build_cls(losses, **args.loss)
+
+    # Create Result Writer
+    timestamp = datetime.now().strftime('%m_%d_%H_%M_%S')
+    writer = ResultsManager.setup_writer(f'results/output_{timestamp}.json', args)
 
     # Training and Evalutation
     optimizer = Adam(policy.parameters(), args.policy['learn_rate']) if next(policy.parameters(), None) is not None else None
@@ -42,6 +48,10 @@ def main(args):
 
         # Run episode with current policy
         episode = sample_torch_episode(env, policy)
+
+        # Write to results
+        writer.add_value('episode', i)
+        writer.add_value('episode_length', len(episode[0]))
 
         # Compute loss
         loss = loss_fn(policy, episode)
@@ -57,6 +67,9 @@ def main(args):
             if args.render and i%200 == 0:
                 render_torch_environment(env, policy)
         episode_durations.append(len(episode[0]))
+
+    # Save Results
+    writer.save()
 
 if __name__ == '__main__':
 
