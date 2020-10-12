@@ -17,7 +17,7 @@ class Critic(Net):
 
 class VCritic(Critic):
 
-    def __init__(self, policy, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
 
         super().__init__(
             *args,
