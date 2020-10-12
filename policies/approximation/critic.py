@@ -15,9 +15,6 @@ class Critic(Net):
             **kwargs,
         )
 
-    def sample_action(self, obs):
-        return None
-
 class VCritic(Critic):
 
     def __init__(self, policy, *args, **kwargs):
