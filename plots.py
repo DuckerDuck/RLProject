@@ -8,12 +8,12 @@ from utils.evaluation import ResultsManager
 
 plt.rcParams.update({'font.size': 20})
 
-def e_length(results, args):
+def e_length(results, args, label=None):
     """Episode versus episode length"""
     x = np.array(results['episode'])
     y = np.array(results['episode_length'])
 
-    plt.plot(x, y)
+    plt.plot(x, y, label=label)
     plt.xlabel('Episode number')
     plt.ylabel('Episode length')
 
@@ -29,11 +29,11 @@ def main(args):
         print('Not the same amount of labels and result files given!')
         return
 
-    for results_file in args.results_files:
+    for i, results_file in enumerate(args.results_files):
         with open(results_file) as f:
             results = json.load(f)
 
-        globals()[args.plot](results, args)
+        globals()[args.plot](results, args, label=args.labels[i] if args.labels is not None else None)
 
     if args.labels is not None:
         plt.legend(args.labels)
