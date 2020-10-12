@@ -13,10 +13,10 @@ def e_length(results, args):
     x = np.array(results['episode'])
     y = np.array(results['episode_length'])
 
-    plt.scatter(x, y)
+    plt.plot(x, y)
     plt.xlabel('Episode number')
     plt.ylabel('Episode length')
-    
+
 
 def main(args):
     if args.plot not in globals().keys():
@@ -25,7 +25,7 @@ def main(args):
 
     plt.figure(figsize=(12, 8))
 
-    if len(args.labels) != len(args.results_files):
+    if args.labels is not None and len(args.labels) != len(args.results_files):
         print('Not the same amount of labels and result files given!')
         return
 
@@ -35,28 +35,51 @@ def main(args):
 
         globals()[args.plot](results, args)
 
-    plt.legend(args.labels)
-    plt.savefig(f'results/{args.plot}.png')
+    if args.labels is not None:
+        plt.legend(args.labels)
+
+    if args.save is not None:
+        plt.savefig(f'results/{args.plot}.png')
+
+    if args.show:
+        plt.show()
 
 if __name__ == '__main__':
 
     parser = ArgumentParser()
 
     parser.add_argument(
-        'results_files',
+        '--results_files',
         help = 'Results files to draw data from.',
-        nargs='*'
+        nargs='*',
+        required=True,
     )
 
     parser.add_argument(
         '--plot',
-        help = 'Which plot to generate. [e_length]',
+        choices = ['e_length'],
+        help = 'Which plot to generate.',
+        required = True,
     )
 
     parser.add_argument(
         '--labels',
         help = 'Is using multiple results files, add label to the axis.',
+        default = None,
         nargs='*'
+    )
+
+    parser.add_argument(
+        '--show',
+        action='store_true',
+        default = False,
+        help = 'Set to show figure'
+    )
+
+    parser.add_argument(
+        '--save',
+        help = 'Set to name in which to save figure. If not set figure is not saved',
+        default = None,
     )
 
     args = parser.parse_args()
