@@ -30,7 +30,7 @@ def main(args):
     policy = build_cls(policies, **args.policy)
 
     # Create losses
-    loss_fn = build_cls(losses, **args.loss)
+    loss_fns = [build_cls(losses, **loss_desc) for loss_desc in (args.loss if isinstance(args.loss, list) else [args.loss])]
 
     # Create Result Writer
     timestamp = datetime.now().strftime('%m_%d_%H_%M_%S')
@@ -54,11 +54,12 @@ def main(args):
         writer.add_value('episode_length', len(episode[0]))
 
         # Compute loss
-        loss = loss_fn(policy, episode)
+        loss = [loss_fn(policy, episode) for loss_fn in loss_fns]
 
         # Update parameters
         if optimizer is not None:
-            loss.backward()
+            for l in loss:
+                l.backward()
             optimizer.step()
 
         if i % 10 == 0:
