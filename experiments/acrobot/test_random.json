@@ -1,0 +1,22 @@
+{
+  "save_to": null,
+  "load_from": null,
+  "policy": {
+    "cls": "random_policy.RandomPolicy",
+    "parameters": {
+      "n_actions" : 3
+    },
+    "learn_rate": 0.001,
+    "discount_factor": 0.99
+  },
+  "loss": {
+    "cls" : "noloss.loss",
+    "parameters" : {}
+  },
+  "env": {
+    "id": "Acrobot-v1"
+  },
+  "num_episodes": 100,
+  "render": 0,
+  "device": "cuda:0"
+}

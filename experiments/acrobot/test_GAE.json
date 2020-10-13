@@ -1,0 +1,44 @@
+{
+	"save_to": null,
+	"load_from": null,
+	"policy": {
+		"cls": "actorcritic.makeGAEAC",
+		"parameters" : {
+			"actor" : {
+				"cls" : "approximation.actor.DifferentiableActor",
+				"parameters": {
+					"neurons": [128],
+					"n_features" : 6,
+					"n_actions" : 3,
+					"discount_factor": 0
+				}
+			},
+			"critic" : {
+				"cls" : "approximation.critic.VCritic",
+				"parameters": {
+					"neurons": [128],
+					"n_features" : 6
+				}
+			},
+			"discount_factor" : 1,
+			"lambdapar" : 0.5
+		},
+		"learn_rate": 0.001
+	},
+	"loss": [
+		{
+			"cls" : "actors.GAE",
+			"parameters" : {}
+		},
+		{
+			"cls" : "critics.MCValue",
+			"parameters" : {}
+		}
+	],
+	"env": {
+		"id": "Acrobot-v1"
+	},
+	"num_episodes": 5000,
+	"render": 0,
+	"device": "cuda:0"
+}
