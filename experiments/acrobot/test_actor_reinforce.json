@@ -1,0 +1,24 @@
+{
+  "save_to": null,
+  "load_from": null,
+  "policy": {
+    "cls": "approximation.actor.DifferentiableActor",
+    "parameters": {
+      "neurons": [128],
+      "n_features" : 6,
+      "n_actions" : 3,
+      "discount_factor": 0.99
+    },
+    "learn_rate": 0.001
+  },
+  "loss": {
+    "cls" : "actors.REINFORCE",
+    "parameters" : {}
+  },
+  "env": {
+    "id": "Acrobot-v1"
+  },
+  "num_episodes": 500,
+  "render": 0,
+  "device": "cuda:0"
+}
