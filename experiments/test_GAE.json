@@ -41,6 +41,6 @@
 	"num_episodes": 100,
 	"render": 0,
 	"device": "cuda:0",
-    "num_runs": 1,
+    "num_runs": 5,
     "name": "test_GAE"
 }
