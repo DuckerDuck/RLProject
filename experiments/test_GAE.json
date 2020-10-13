@@ -38,7 +38,9 @@
 	"env": {
 		"id": "CartPole-v1"
 	},
-	"num_episodes": 1000,
+	"num_episodes": 100,
 	"render": 0,
-	"device": "cuda:0"
+	"device": "cuda:0",
+    "num_runs": 1,
+    "name": "test_GAE"
 }

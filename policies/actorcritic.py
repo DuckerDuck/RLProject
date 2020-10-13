@@ -64,4 +64,5 @@ class GAEAC(ActorCritic):
         self.critic.to(device)
         return self
 
+
 makeGAEAC = makeFactory(GAEAC)

@@ -1,7 +1,9 @@
+import os
 import time
 
 import gym
 import torch
+import numpy as np
 from datetime import datetime
 from torch.optim import Adam
 
@@ -22,10 +24,25 @@ from utils.rendering import render_torch_environment
 from utils.settings import SettingsParser, DictArgs, get_mod_attr, build_cls
 from utils.evaluation import ResultsManager
 
-def main(args):
+SEED = 42
 
+
+def main(args):
+    timestamp = datetime.now().strftime('%m_%d_%H_%M_%S')
+    directory = "results/exp_{}_{}".format(args.name, timestamp)
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+    for i in range(args.num_runs):
+        run(args, SEED + i, directory)
+
+
+def run(args, seed, directory):
     # Create env
     env = gym.envs.make(**args.env)
+
+    # Set seeds
+    torch.manual_seed(seed)
+    np.random.seed(seed)
 
     # Create agent
     policy = build_cls(policies, **args.policy).to(args.device)
@@ -34,8 +51,7 @@ def main(args):
     loss_fns = [build_cls(losses, **loss_desc) for loss_desc in (args.loss if isinstance(args.loss, list) else [args.loss])]
 
     # Create Result Writer
-    timestamp = datetime.now().strftime('%m_%d_%H_%M_%S')
-    writer = ResultsManager.setup_writer(f'results/output_{timestamp}.json', args)
+    writer = ResultsManager.setup_writer(f'{directory}/output_{seed}.json', args)
 
     # Training and Evalutation
     optimizer = Adam(policy.parameters(), args.policy['learn_rate']) if next(policy.parameters(), None) is not None else None
@@ -66,12 +82,14 @@ def main(args):
         if i % 10 == 0:
             print("{2} Episode {0} finished after {1} steps"
                   .format(i, len(episode[0]), '\033[92m' if len(episode[0]) >= 195 else '\033[99m'))
-            if args.render and i%200 == 0:
+            if args.render and i % 200 == 0:
                 render_torch_environment(env, policy)
         episode_durations.append(len(episode[0]))
 
     # Save Results
     writer.save()
+    torch.save(policy.actor.state_dict(), "{}/model_{}.pt".format(directory, seed))
+
 
 if __name__ == '__main__':
 
@@ -116,8 +134,21 @@ if __name__ == '__main__':
         help = 'device (cuda or cpu) in which to run model',
     )
 
+    parser.add_argument(
+        '--num_runs',
+        type = int,
+        default = 10,
+        help = 'number of runs of the same experiments, but with different seeds',
+    )
+
+    parser.add_argument(
+        '--name',
+        type = str,
+        default = "",
+        help = 'number of runs of the same experiments, but with different seeds',
+    )
+
     args = parser.parse_args()
     args.device = torch.device(args.device)
     print('Running on device', args.device)
     main(args)
-
