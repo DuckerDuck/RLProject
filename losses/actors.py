@@ -18,9 +18,7 @@ def makePolicyLoss(Psi):
             # Make sure that your function runs in LINEAR TIME
             # Note that the rewards/returns should be maximized 
             # while the loss should be minimized so you need a - somewhere
-            # YOUR CODE HERE
 
-            # −∑𝑡log𝜋𝜃(𝑎𝑡|𝑠𝑡)𝐺𝑡
             states, actions, _, _ = episode
             psi = Psi(policy=policy, episode=episode)
 
@@ -28,7 +26,7 @@ def makePolicyLoss(Psi):
             loss = 0
 
             for t in range(len(states) - 1, -1, -1):
-                loss += log_probs[t] * next(psi)
+                loss += log_probs[t] * next(psi).detach()
 
             return -loss
 
