@@ -20,5 +20,7 @@
   },
   "num_episodes": 500,
   "render": 0,
-  "device": "cuda:0"
+  "device": "cuda:0",
+  "name" : "test_actor_REINFORCE",
+  "num_runs" : 1
 }

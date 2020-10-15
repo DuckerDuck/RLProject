@@ -20,10 +20,10 @@
 					"n_features" : 4
 				}
 			},
-			"discount_factor" : 1,
-			"lambdapar" : 0.5
+			"discount_factor" : 0.99,
+			"lambdapar" : 0.99
 		},
-		"learn_rate": 0.001
+		"learn_rate": 0.01
 	},
 	"loss": [
 		{
@@ -38,9 +38,9 @@
 	"env": {
 		"id": "CartPole-v1"
 	},
-	"num_episodes": 100,
+	"num_episodes": 1000,
 	"render": 0,
 	"device": "cuda:0",
-    "num_runs": 5,
+    "num_runs": 1,
     "name": "test_GAE"
 }
