@@ -70,6 +70,7 @@ def run(args, seed, directory):
         # Write to results
         writer.add_value('episode', i)
         writer.add_value('episode_length', len(episode[0]))
+        writer.add_value('return', episode[2].sum().item())
 
         # Compute loss
         loss = [loss_fn(policy, episode) for loss_fn in loss_fns]

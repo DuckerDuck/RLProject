@@ -7,20 +7,29 @@ import numpy as np
 
 SEED = 42
 
-def aggregate(input_name, **kwargs):
+def aggregate(input_name, targets, **kwargs):
 
     files = glob(input_name)
 
-    ep_lengths = []
+    vals = {}
     for file in files:
         with open(file) as f:
+
             data = json.load(f)
-            ep_lengths.append(data['episode_length'])
+
+            for target in targets:
+                vals[target] = vals.get(target, []) + [data[target]]
 
     return dict(
         data,
-        episode_length = list(np.mean(ep_lengths, axis=0)),
-        episode_std = list(np.std(ep_lengths, axis=0)),
+        **{
+            target : list(np.mean(vals[target], axis=0))
+            for target in targets
+        },
+        **{
+            f"{target}_std" : list(np.std(vals[target], axis=0))
+            for target in targets
+        }
     )
 
 def main(config):
@@ -38,14 +47,14 @@ if __name__ == '__main__':
         '--input_name',
         type=str,
         required=True,
-        help = 'regexp of file(s) to analyze'
+        help = 'regexp of file(s) to analyze',
     )
 
     parser.add_argument(
         '--output_name',
         type=str,
         required=True,
-        help = "Name of file in which to dump results"
+        help = "Name of file in which to dump results",
     )
 
     parser.add_argument(
@@ -53,7 +62,16 @@ if __name__ == '__main__':
         type=str,
         choices = ["aggregate"],
         required=True,
-        help = "Function to be performed on data given"
+        help = "Function to be performed on data given",
+    )
+
+    parser.add_argument(
+        "--targets",
+        type=str,
+        nargs = "+",
+        choices = ["episode_length", "return"],
+        default = ["episode_length", "return"],
+        help = "Value on which to perform analytics",
     )
 
     config = parser.parse_args()

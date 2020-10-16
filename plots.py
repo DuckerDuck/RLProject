@@ -8,22 +8,27 @@ from utils.evaluation import ResultsManager
 
 plt.rcParams.update({'font.size': 20})
 
-def e_length(results, args, label=None):
-    """Episode versus episode length"""
-    x = np.array(results['episode'])
-    y = np.array(results['episode_length'])
+def plot_target(target):
+    def f(results, args, label=None):
+        """Episode versus episode length"""
+        x = np.array(results['episode'])
+        y = np.array(results[target])
 
-    # running_avg = np.cumsum(y)/(np.arange(y.shape[0])+1)
+        # running_avg = np.cumsum(y)/(np.arange(y.shape[0])+1)
 
-    plt.plot(x, y, label=label)
+        plt.plot(x, y, label=label)
 
-    if 'episode_std' in results:
-        std = np.array(results['episode_std'])
-        plt.fill_between(x, y-std, y+std, alpha=0.5, label = f"{label+'_' if label is not None else ''}std")
+        if f"{target}_std" in results:
+            std = np.array(results[f"{target}_std"])
+            plt.fill_between(x, y-std, y+std, alpha=0.5, label = f"{label+'_' if label is not None else ''}std")
 
-    # plt.plot(x, running_avg, label = f"{label+'_' if label is not None else ''}avg")
-    plt.xlabel('Episode number')
-    plt.ylabel('Episode length')
+        # plt.plot(x, running_avg, label = f"{label+'_' if label is not None else ''}avg")
+        plt.xlabel('Episode number')
+        plt.ylabel(target)
+    return f
+
+e_length = plot_target('episode_length')
+e_return = plot_target('return')
 
 def main(args):
     if args.plot not in globals().keys():
@@ -63,7 +68,7 @@ if __name__ == '__main__':
 
     parser.add_argument(
         '--plot',
-        choices = ['e_length'],
+        choices = ['e_length', 'e_return'],
         help = 'Which plot to generate.',
         required = True,
     )
