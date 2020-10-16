@@ -24,8 +24,9 @@ from utils.rendering import render_torch_environment
 from utils.settings import SettingsParser, DictArgs, get_mod_attr, build_cls
 from utils.evaluation import ResultsManager
 
-SEED = 42
+import pickle
 
+SEED = 42
 
 def main(args):
     timestamp = datetime.now().strftime('%m_%d_%H_%M_%S')
@@ -80,16 +81,15 @@ def run(args, seed, directory):
             optimizer.step()
 
         if i % 10 == 0:
-            print("{2} Episode {0} finished after {1} steps"
-                  .format(i, len(episode[0]), '\033[92m' if len(episode[0]) >= 195 else '\033[99m'))
+            print(f"Episode {i} finished after {len(episode[0])} steps")
             if args.render and i % 200 == 0:
                 render_torch_environment(env, policy)
         episode_durations.append(len(episode[0]))
 
     # Save Results
     writer.save()
-    torch.save(policy.actor.state_dict(), "{}/model_{}.pt".format(directory, seed))
-
+    with open(f"{directory}/model_{seed}.pt", "wb") as f:
+        pickle.dump(policy, f)
 
 if __name__ == '__main__':
 
