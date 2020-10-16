@@ -22,5 +22,6 @@
 	"render": 0,
 	"device": "cpu",
 	"name" : "CartPole_REINFORCE",
-	"num_runs" : 100
+	"num_runs" : 100,
+	"seed" : 500
 }

@@ -26,15 +26,13 @@ from utils.evaluation import ResultsManager
 
 import pickle
 
-SEED = 500
-
 def main(args):
     timestamp = datetime.now().strftime('%m_%d_%H_%M_%S')
     directory = "results/exp_{}_{}".format(args.name, timestamp)
     if not os.path.exists(directory):
         os.makedirs(directory)
     for i in range(args.num_runs):
-        run(args, SEED + i, directory)
+        run(args, args.seed + i, directory)
 
 
 def run(args, seed, directory):
@@ -147,6 +145,13 @@ if __name__ == '__main__':
         type = str,
         default = "",
         help = 'number of runs of the same experiments, but with different seeds',
+    )
+
+    parser.add_argument(
+        '--seed',
+        type = int,
+        default = 500,
+        help = 'starting random seed',
     )
 
     args = parser.parse_args()
