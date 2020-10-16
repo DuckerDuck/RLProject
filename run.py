@@ -26,7 +26,7 @@ from utils.evaluation import ResultsManager
 
 import pickle
 
-SEED = 42
+SEED = 500
 
 def main(args):
     timestamp = datetime.now().strftime('%m_%d_%H_%M_%S')
