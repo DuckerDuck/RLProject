@@ -40,7 +40,7 @@ def main(args):
     plt.legend()
 
     if args.save is not None:
-        plt.savefig(f'results/{args.plot}.png')
+        plt.savefig(args.save)
 
     if args.show:
         plt.show()
