@@ -42,6 +42,6 @@
 	"render": 0,
 	"device": "cpu",
     "num_runs": 100,
-    "name": "Acrobot_GAE",
+    "name": "Acrobot_AE",
     "seed" : 500
 }

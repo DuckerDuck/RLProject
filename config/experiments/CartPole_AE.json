@@ -42,6 +42,6 @@
 	"render": 0,
 	"device": "cpu",
     "num_runs": 100,
-    "name": "CartPole_GAE",
+    "name": "CartPole_AE",
     "seed" : 500
 }
