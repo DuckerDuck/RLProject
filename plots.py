@@ -13,13 +13,12 @@ def e_length(results, args, label=None):
     x = np.array(results['episode'])
     y = np.array(results['episode_length'])
 
-    running_avg = np.cumsum(y)/(np.arange(y.shape[0])+1)
+    # running_avg = np.cumsum(y)/(np.arange(y.shape[0])+1)
 
     plt.plot(x, y, label=label)
-    plt.plot(x, running_avg, label = f"{label+'_' if label is not None else ''}avg")
+    # plt.plot(x, running_avg, label = f"{label+'_' if label is not None else ''}avg")
     plt.xlabel('Episode number')
     plt.ylabel('Episode length')
-
 
 def main(args):
     if args.plot not in globals().keys():
