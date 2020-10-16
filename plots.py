@@ -16,6 +16,11 @@ def e_length(results, args, label=None):
     # running_avg = np.cumsum(y)/(np.arange(y.shape[0])+1)
 
     plt.plot(x, y, label=label)
+
+    if 'episode_std' in results:
+        std = np.array(results['episode_std'])
+        plt.fill_between(x, y-std, y+std, alpha=0.5, label = f"{label+'_' if label is not None else ''}std")
+
     # plt.plot(x, running_avg, label = f"{label+'_' if label is not None else ''}avg")
     plt.xlabel('Episode number')
     plt.ylabel('Episode length')
