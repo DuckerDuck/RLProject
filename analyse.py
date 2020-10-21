@@ -2,10 +2,39 @@ import argparse
 import json
 import os
 from glob import glob
+from sklearn import metrics
 
 import numpy as np
 
 SEED = 42
+
+def auc(input_name, targets, lower_bnd, **kwargs):
+    """Area under Curve + Asymptotic
+        Assumes that results are already aggregated!
+    """
+    files = glob(input_name + '*')
+    
+    results = {}
+    for file in files:
+        with open(file) as f:
+            data = json.load(f)
+            for target in targets:
+                y = np.array(data[target])
+                
+                # Asymptotic
+                upper_bnd = y[-1]
+                
+                # Normalize returns
+                y = (y - lower_bnd) / (upper_bnd - lower_bnd)
+
+                num_episodes = len(data['episode'])
+                
+                results[file] = {
+                    'auc': metrics.auc(data['episode'], y) / num_episodes,
+                    'upper_bnd': upper_bnd
+                }
+    return results
+
 
 def aggregate(input_name, targets, **kwargs):
 
@@ -60,7 +89,7 @@ if __name__ == '__main__':
     parser.add_argument(
         "--function",
         type=str,
-        choices = ["aggregate"],
+        choices = ["aggregate", "auc"],
         required=True,
         help = "Function to be performed on data given",
     )
@@ -72,6 +101,13 @@ if __name__ == '__main__':
         choices = ["episode_length", "return"],
         default = ["episode_length", "return"],
         help = "Value on which to perform analytics",
+    )
+
+    parser.add_argument(
+        "--lower_bnd",
+        type=float,
+        default = -500,
+        help = "For AUC only: theoretical lower bound of returns",
     )
 
     config = parser.parse_args()
