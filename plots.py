@@ -18,9 +18,9 @@ def plot_target(target):
 
         plt.plot(x, y, label=label)
 
-        if f"{target}_std" in results:
+        if args.show_std and f"{target}_std" in results:
             std = np.array(results[f"{target}_std"])
-            plt.fill_between(x, y-std, y+std, alpha=0.5, label = f"{label+'_' if label is not None else ''}std")
+            # plt.fill_between(x, y-std, y+std, alpha=0.5, label = f"{label+'_' if label is not None else ''}std")
 
         # plt.plot(x, running_avg, label = f"{label+'_' if label is not None else ''}avg")
         plt.xlabel('Episode number')
@@ -48,6 +48,7 @@ def main(args):
         globals()[args.plot](results, args, label=args.labels[i] if args.labels is not None else None)
 
     plt.legend()
+    plt.title(args.title)
 
     if args.save is not None:
         plt.savefig(args.save)
@@ -78,6 +79,20 @@ if __name__ == '__main__':
         help = 'Is using multiple results files, add label to the axis.',
         default = None,
         nargs='*'
+    )
+
+    parser.add_argument(
+        '--show_std',
+        action='store_true',
+        default = False,
+        help = 'Set this flag to show std in plots'
+    )
+
+    parser.add_argument(
+        '--title',
+        type = str,
+        required = True,
+        help = 'Title of the plot'
     )
 
     parser.add_argument(
