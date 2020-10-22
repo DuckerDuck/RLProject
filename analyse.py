@@ -13,22 +13,22 @@ def auc(input_name, targets, lower_bnd, **kwargs):
         Assumes that results are already aggregated!
     """
     files = glob(input_name + '*')
-    
+
     results = {}
     for file in files:
         with open(file) as f:
             data = json.load(f)
             for target in targets:
                 y = np.array(data[target])
-                
+
                 # Asymptotic
                 upper_bnd = y[-1]
-                
+
                 # Normalize returns
                 y = (y - lower_bnd) / (upper_bnd - lower_bnd)
 
                 num_episodes = len(data['episode'])
-                
+
                 results[file] = {
                     'auc': metrics.auc(data['episode'], y) / num_episodes,
                     'upper_bnd': upper_bnd
@@ -36,7 +36,7 @@ def auc(input_name, targets, lower_bnd, **kwargs):
     return results
 
 
-def aggregate(input_name, targets, **kwargs):
+def aggregate(input_name, targets, do_filter, **kwargs):
 
     files = glob(input_name)
 
@@ -47,7 +47,8 @@ def aggregate(input_name, targets, **kwargs):
             data = json.load(f)
 
             for target in targets:
-                vals[target] = vals.get(target, []) + [data[target]]
+                if not do_filter or np.any(np.array(data['episode_length'])!=data['episode_length'][0]):
+                    vals[target] = vals.get(target, []) + [data[target]]
 
     return dict(
         data,
@@ -101,6 +102,13 @@ if __name__ == '__main__':
         choices = ["episode_length", "return"],
         default = ["episode_length", "return"],
         help = "Value on which to perform analytics",
+    )
+
+    parser.add_argument(
+        "--do_filter",
+        action = "store_true",
+        default = False,
+        help = "Set this flag to filter uncoverged runs",
     )
 
     parser.add_argument(
