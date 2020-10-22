@@ -8,13 +8,13 @@ import numpy as np
 
 SEED = 42
 
-def auc(input_name, targets, lower_bnd, **kwargs):
+def auc(input_name, targets, **kwargs):
     """Area under Curve + Asymptotic
         Assumes that results are already aggregated!
     """
     files = glob(input_name + '*')
 
-    results = {}
+    results = dict(per_file = dict(), total = dict())
     for file in files:
         with open(file) as f:
             data = json.load(f)
@@ -22,17 +22,32 @@ def auc(input_name, targets, lower_bnd, **kwargs):
                 y = np.array(data[target])
 
                 # Asymptotic
-                upper_bnd = y[-1]
+                asymptote = y[-1]
+
+                upper_bnd = np.max(y)
+                lower_bnd = np.min(y)
 
                 # Normalize returns
-                y = (y - lower_bnd) / (upper_bnd - lower_bnd)
+                if upper_bnd != lower_bnd:
+                    y = (y - lower_bnd) / (upper_bnd - lower_bnd)
 
                 num_episodes = len(data['episode'])
 
-                results[file] = {
-                    'auc': metrics.auc(data['episode'], y) / num_episodes,
-                    'upper_bnd': upper_bnd
+                results['per_file' ][file] = {
+                    'auc': metrics.auc(data['episode'], y) / num_episodes if upper_bnd != lower_bnd else 1,
+                    'asymptote': asymptote
                 }
+
+    results['total']['auc'] = dict(
+        mean = np.mean(np.array([x['auc'] for x in results['per_file'].values()])),
+        std = np.std(np.array([x['auc'] for x in results['per_file'].values()])),
+    )
+
+    results['total']['asymptote'] = dict(
+        mean = np.mean(np.array([x['asymptote'] for x in results['per_file'].values()])),
+        std = np.std(np.array([x['asymptote'] for x in results['per_file'].values()])),
+    )
+
     return results
 
 
@@ -111,12 +126,5 @@ if __name__ == '__main__':
         help = "Set this flag to filter uncoverged runs",
     )
 
-    parser.add_argument(
-        "--lower_bnd",
-        type=float,
-        default = -500,
-        help = "For AUC only: theoretical lower bound of returns",
-    )
-
     config = parser.parse_args()
-    main(config)
+    ret = main(config)
