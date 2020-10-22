@@ -20,7 +20,7 @@ def plot_target(target):
 
         if args.show_std and f"{target}_std" in results:
             std = np.array(results[f"{target}_std"])
-            # plt.fill_between(x, y-std, y+std, alpha=0.5, label = f"{label+'_' if label is not None else ''}std")
+            plt.fill_between(x, y-std, y+std, alpha=0.5, label = f"{label+'_' if label is not None else ''}std")
 
         # plt.plot(x, running_avg, label = f"{label+'_' if label is not None else ''}avg")
         plt.xlabel('Episode number')
