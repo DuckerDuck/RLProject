@@ -19,8 +19,8 @@ def plot_target(target):
         plt.plot(x, y, label=label)
 
         if args.show_std and f"{target}_std" in results:
-            std = np.array(results[f"{target}_std"])
-            plt.fill_between(x, y-std, y+std, alpha=0.5, label = f"{label+'_' if label is not None else ''}std")
+            std = np.array(results[f"{target}_std"])/10
+            plt.fill_between(x, y-std, y+std, alpha=0.5)
 
         # plt.plot(x, running_avg, label = f"{label+'_' if label is not None else ''}avg")
         plt.xlabel('Episode number')
@@ -47,11 +47,11 @@ def main(args):
 
         globals()[args.plot](results, args, label=args.labels[i] if args.labels is not None else None)
 
-    plt.legend()
+    plt.legend(loc='upper left')
     plt.title(args.title)
 
     if args.save is not None:
-        plt.savefig(args.save)
+        plt.savefig(args.save, dpi=900)
 
     if args.show:
         plt.show()
