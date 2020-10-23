@@ -144,7 +144,7 @@ if __name__ == '__main__':
         '--name',
         type = str,
         default = "",
-        help = 'number of runs of the same experiments, but with different seeds',
+        help = 'Name of the experiment, used to save to results',
     )
 
     parser.add_argument(

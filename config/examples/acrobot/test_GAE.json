@@ -38,7 +38,10 @@
 	"env": {
 		"id": "Acrobot-v1"
 	},
-	"num_episodes": 5000,
+	"num_episodes": 101,
 	"render": 0,
-	"device": "cuda:0"
+	"device": "cpu",
+	"name": "testgae",
+	"num_runs": 1,
+	"seed": 1
 }
