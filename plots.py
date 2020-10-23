@@ -23,8 +23,8 @@ def plot_target(target):
             plt.fill_between(x, y-std, y+std, alpha=0.5)
 
         # plt.plot(x, running_avg, label = f"{label+'_' if label is not None else ''}avg")
-        plt.xlabel('Episode number')
-        plt.ylabel(target)
+        plt.xlabel('Episodes')
+        plt.ylabel(target.capitalize())
     return f
 
 e_length = plot_target('episode_length')
@@ -47,11 +47,11 @@ def main(args):
 
         globals()[args.plot](results, args, label=args.labels[i] if args.labels is not None else None)
 
-    plt.legend(loc='upper left')
+    plt.legend(loc='lower right')
     plt.title(args.title)
 
     if args.save is not None:
-        plt.savefig(args.save, dpi=900)
+        plt.savefig(args.save, dpi=900, bbox_inches='tight')
 
     if args.show:
         plt.show()
